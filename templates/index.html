@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Spam & Fraud Detector</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #e0e7ff;
+            background-image: linear-gradient(135deg, #a8b2e1 0%, #e0e7ff 50%, #fde2e4 100%);
+            transition: background-color 0.5s ease;
+        }
+        body.is-spam { background-color: #fde2e4; }
+        body.is-ham { background-color: #dcfce7; }
+        #result-card {
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform: translateY(40px) scale(0.9);
+            opacity: 0;
+        }
+        #result-card.visible {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+        .submit-btn:hover {
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4), 0 8px 10px -6px rgba(99, 102, 241, 0.4);
+            transform: translateY(-3px);
+        }
+        .example-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .example-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 transition-colors duration-500">
+    <div class="w-full max-w-3xl">
+        <div class="bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl shadow-gray-400/20 border border-white/50 p-6 md:p-10">
+            <header class="text-center mb-8">
+                <div class="inline-block bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-3.5 rounded-2xl mb-4 shadow-lg shadow-indigo-300/80">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                    </svg>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-800">AI Message Analyzer</h1>
+                <p class="text-gray-500 mt-2">Instantly check if a message is safe or spam.</p>
+            </header>
+            <form id="spam-form">
+                <div class="mb-4">
+                    <label for="message" class="sr-only">Your Message</label>
+                    <textarea name="message" id="message" rows="5" class="w-full p-4 bg-white/80 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition duration-200" placeholder="Paste a suspicious message here..."></textarea>
+                </div>
+                <button type="submit" id="submit-button" class="submit-btn w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-3.5 px-4 rounded-xl hover:shadow-xl transition-all duration-300 flex items-center justify-center disabled:from-gray-400 disabled:to-gray-500">
+                    <span id="button-text">Analyze Message</span>
+                    <svg id="spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </form>
+            <div id="result-container" class="mt-8 h-20 flex items-center justify-center"></div>
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                <div class="space-y-2">
+                    <h3 class="font-semibold text-center text-red-600 mb-2">Spam Examples (Wrong)</h3>
+                    <button type="button" class="example-btn w-full text-left p-3 rounded-lg bg-red-100 text-red-800 hover:bg-red-200 h-24 flex items-center">URGENT! You have won a 1 week FREE membership...</button>
+                    <button type="button" class="example-btn w-full text-left p-3 rounded-lg bg-red-100 text-red-800 hover:bg-red-200 h-24 flex items-center">💰 Your Rs. 3,50,000 loan is pre-approved! Click http://gmg.im/x07fZf</button>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="font-semibold text-center text-green-600 mb-2">Safe Examples (Correct)</h3>
+                    <button type="button" class="example-btn w-full text-left p-3 rounded-lg bg-green-100 text-green-800 hover:bg-green-200 h-24 flex items-center">Hey, are we still on for dinner tonight?</button>
+                    <button type="button" class="example-btn w-full text-left p-3 rounded-lg bg-green-100 text-green-800 hover:bg-green-200 h-24 flex items-center">Ok</button>
+                </div>
+            </div>
+        </div>
+        <footer class="text-center mt-6 text-sm text-gray-400">
+            <p>Built with Python & ❤️</p>
+            <p class="mt-1 font-bold text-gray-500">DONT TRUST ALWAYS MACHINE!!</p>
+        </footer>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('spam-form');
+            const messageInput = document.getElementById('message');
+            const submitButton = document.getElementById('submit-button');
+            const buttonText = document.getElementById('button-text');
+            const spinner = document.getElementById('spinner');
+            const resultContainer = document.getElementById('result-container');
+            const body = document.body;
+            const exampleButtons = document.querySelectorAll('.example-btn');
+
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const message = messageInput.value.trim();
+                if (!message) return;
+                setLoading(true);
+                try {
+                    const response = await fetch('/predict', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: message }),
+                    });
+                    if (!response.ok) throw new Error(`Server error: ${response.status}`);
+                    const data = await response.json();
+                    displayResult(data);
+                } catch (error) {
+                    console.error('Error:', error);
+                    displayError('Could not connect to the server.');
+                } finally {
+                    setLoading(false);
+                }
+            });
+
+            exampleButtons.forEach(button => {
+                if (button.textContent.includes('loan is pre-approved')) {
+                    button.addEventListener('click', () => {
+                        messageInput.value = "💰 Your Rs. 3,50,000 loan is pre-approved! 💰\n👉 Enjoy low interest rates and no paperwork.\n👉 Finalize your application now. 📝\n\nClick http://gmg.im/x07fZf";
+                        messageInput.focus();
+                    });
+                } else {
+                    button.addEventListener('click', () => {
+                        messageInput.value = button.textContent;
+                        messageInput.focus();
+                    });
+                }
+            });
+
+            function setLoading(isLoading) {
+                submitButton.disabled = isLoading;
+                buttonText.style.display = isLoading ? 'none' : 'block';
+                spinner.style.display = isLoading ? 'block' : 'none';
+            }
+
+            function displayResult(data) {
+                const isSpam = data.prediction === 'SPAM';
+                body.classList.remove('is-spam', 'is-ham');
+                body.classList.add(isSpam ? 'is-spam' : 'is-ham');
+                const resultHtml = isSpam ? createSpamCard(data) : createHamCard(data);
+                resultContainer.innerHTML = resultHtml;
+                setTimeout(() => document.getElementById('result-card')?.classList.add('visible'), 10);
+            }
+
+            function displayError(message) {
+                body.classList.remove('is-spam', 'is-ham');
+                resultContainer.innerHTML = `<div id="result-card" class="text-center text-red-500 visible"><p>${message}</p></div>`;
+            }
+
+            function createSpamCard(data) {
+                return `
+                <div id="result-card" class="w-full text-center p-3 rounded-2xl bg-gradient-to-br from-red-500 to-orange-400 text-white shadow-xl shadow-red-300/60">
+                    <div class="flex items-center justify-center space-x-3">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 3.001-1.742 3.001H4.42c-1.53 0-2.493-1.667-1.743-3.001l5.58-9.92zM10 13a1 1 0 110-2 1 1 0 010 2zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                        </div>
+                        <div>
+                            <p class="font-bold text-lg">This Looks Like Spam</p>
+                            <p class="text-xs opacity-80">Confidence: ${data.confidence}%</p>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            function createHamCard(data) {
+                return `
+                <div id="result-card" class="w-full text-center p-3 rounded-2xl bg-gradient-to-br from-green-500 to-teal-400 text-white shadow-xl shadow-green-300/60">
+                    <div class="flex items-center justify-center space-x-3">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                        </div>
+                        <div>
+                            <p class="font-bold text-lg">This Looks Safe</p>
+                            <p class="text-xs opacity-80">Confidence: ${data.confidence}%</p>
+                        </div>
+                    </div>
+                </div>`;
+            }
+        });
+    </script>
+</body>
+</html>
