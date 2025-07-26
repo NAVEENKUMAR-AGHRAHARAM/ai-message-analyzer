@@ -6,11 +6,14 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 
 app = Flask(__name__)
+
+# Ensure stopwords are available
 try:
     stopwords.words('english')
 except LookupError:
     nltk.download('stopwords')
 
+# Preprocessing function
 def preprocess_text(text):
     stemmer = PorterStemmer()
     stop_words = set(stopwords.words('english'))
@@ -25,6 +28,7 @@ def preprocess_text(text):
     stemmed_tokens = [stemmer.stem(word) for word in tokens if word not in stop_words]
     return ' '.join(stemmed_tokens)
 
+# Load the trained model
 model_filename = "spam_classifier_model.pkl"
 model = None
 try:
@@ -34,10 +38,12 @@ try:
 except Exception as e:
     print(f"FATAL ERROR loading model: {e}")
 
+# Home route
 @app.route("/")
 def index():
     return render_template("index.html")
 
+# Prediction route
 @app.route("/predict", methods=["POST"])
 def predict():
     if not model:
@@ -60,5 +66,11 @@ def predict():
         print(f"Error during prediction: {e}")
         return jsonify({'error': 'An error occurred during prediction.'}), 500
 
+# Health check route for uptime robot
+@app.route("/ping")
+def ping():
+    return "pong", 200
+
+# Run the app
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)
